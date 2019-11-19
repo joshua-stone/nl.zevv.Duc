@@ -1,0 +1,70 @@
+app-id: nl.zevv.Duc
+runtime: org.freedesktop.Platform
+runtime-version: '19.08'
+sdk: org.freedesktop.Sdk
+command: duc.sh
+finish-args:
+        - --socket=x11
+        - --socket=wayland
+        - --filesystem=home:ro
+        - --filesystem=xdg-cache:rw
+modules:
+        - name: ncurses
+          cleanup:
+                  - "/include"
+                  - "/lib/lib*.a"
+          buildsystem: autotools
+          sources:
+                  - type: archive
+                    url: https://invisible-island.net/datafiles/release/ncurses.tar.gz
+                    sha256: aa057eeeb4a14d470101eff4597d5833dcef5965331be3528c08d99cebaa0d17 
+        - name: tokyocabinet
+          cleanup:
+                  - "/include"
+                  - "/lib/lib*.a"
+                  - "/lib/share/tokyocabinet"
+                  - "/lib/debug"
+                  - "/share/tokyocabinet"
+          buildsystem: autotools
+          sources:
+                  - type: archive
+                    url: https://fallabs.com/tokyocabinet/tokyocabinet-1.4.48.tar.gz
+                    sha256: a003f47c39a91e22d76bc4fe68b9b3de0f38851b160bbb1ca07a4f6441de1f90
+        - name: duc
+          cleanup:
+                  - "/lib/debug"
+          buildsystem: simple
+          build-commands:
+                  - autoreconf --install
+                  - ./configure --prefix=/app
+                  - make
+                  - make install
+                  - install -Dm755 duc.sh /app/bin/duc.sh
+                  - install -Dm755 duc-gui /app/bin/duc-gui
+                  - install -Dp -m 644 nl.zevv.Duc.desktop /app/share/applications/nl.zevv.Duc.desktop
+                  - install -Dp -m 644 nl.zevv.Duc.png /app/share/icons/hicolor/256x256/apps/nl.zevv.Duc.png
+                  - install -Dp -m 644 nl.zevv.Duc-128.png /app/share/icons/hicolor/128x128/app/nl.zevv.Duc-128.png
+                  - install -Dp -m 644 nl.zevv.Duc-64.png /app/share/icons/hicolor/64x64/apps/nl.zevv.Duc-64.png
+          sources:
+                  - type: git
+                    url: https://github.com/zevv/duc
+                    tag: "1.4.4"
+                    commit: ed7fcd4ee1efab0983d3b6d05de6bef73e316ca9
+                  - type: file
+                    path: nl.zevv.Duc.png
+                  - type: file
+                    path: nl.zevv.Duc-128.png
+                  - type: file
+                    path: nl.zevv.Duc-64.png
+                  - type: file
+                    path: nl.zevv.Duc.desktop
+                  - type: script
+                    dest-filename: duc.sh
+                    commands:
+                           - "export DUC_DATABASE=\"${XDG_CACHE_HOME}/duc.db\""
+                           - "exec /app/bin/duc \"$@\""
+                  - type: script
+                    dest-filename: duc-gui
+                    commands:
+                           - "[[ -e \"${XDG_CACHE_HOME}/duc.db\" ]] || duc.sh index \"${HOME}\""
+                           - "exec /app/bin/duc.sh gui"

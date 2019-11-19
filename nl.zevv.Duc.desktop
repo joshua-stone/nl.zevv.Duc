@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=Duc
+Icon=nl.zevv.Duc
+Exec=duc-gui
+Categories=Utility;

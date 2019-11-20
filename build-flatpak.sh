@@ -13,6 +13,10 @@ source gpghome.cfg
 
 ./generate-icons.sh
 
+flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+
+flatpak --assumeyes install flathub org.freedesktop.Sdk//19.08
+
 flatpak-builder --gpg-homedir="${GPG_HOME}" \
                 --gpg-sign="${KEY_ID}" \
 	        --force-clean \
